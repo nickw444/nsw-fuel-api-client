@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 
 
@@ -83,11 +84,21 @@ class AveragePrice(object):
 
     @classmethod
     def deserialize(cls, data: dict):
+        period = Period(data['Period'])
+
+        captured_raw = data['Captured']
+        if period in [Period.DAY, Period.WEEK, Period.MONTH]:
+            captured = datetime.strptime(captured_raw, '%Y-%m-%d')
+        elif period == Period.YEAR:
+            captured = datetime.strptime(captured_raw, '%B %Y')
+        else:
+            captured = captured_raw
+
         return AveragePrice(
             fuel_type=data['Code'],
-            period=Period(data['Period']),
+            period=period,
             price=data['Price'],
-            captured=data['Captured'],
+            captured=captured,
         )
 
     def __repr__(self):

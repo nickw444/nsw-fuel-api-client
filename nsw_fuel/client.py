@@ -4,8 +4,13 @@ from typing import List, Tuple
 
 from .dto import Price, Station, Variance, AveragePrice
 
+API_URL_BASE = 'https://api.onegov.nsw.gov.au/FuelCheckApp/v1/fuel/prices'
+
 
 class FuelCheckClient():
+    def __init__(self):
+        pass
+
     def _get_headers(self):
         return {
             'requesttimestamp': datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')
@@ -13,7 +18,7 @@ class FuelCheckClient():
 
     def get_fuel_prices_for_station(self, station: int) -> [Price]:
         response = requests.get(
-            f'https://api.onegov.nsw.gov.au/FuelCheckApp/v1/fuel/prices/station/{station}',
+            f'{API_URL_BASE}/station/{station}',
             headers=self._get_headers())
         data = response.json()
         return [Price.deserialize(data) for data in data['prices']]
@@ -22,7 +27,7 @@ class FuelCheckClient():
                                       brands: [str] = None) -> List[Tuple[Price, Station]]:
         if brands is None:
             brands = []
-        response = requests.post('https://api.onegov.nsw.gov.au/FuelCheckApp/v1/fuel/prices/nearby', json={
+        response = requests.post(f'{API_URL_BASE}/nearby', json={
             'fueltype': fuel_type,
             'latitude': latitude,
             'longitude': longitude,
@@ -39,7 +44,7 @@ class FuelCheckClient():
         return station_prices
 
     def get_fuel_price_trends(self, latitude, longitude, fuel_types: [str]):
-        response = requests.post('https://api.onegov.nsw.gov.au/FuelCheckApp/v1/fuel/prices/trends/', json={
+        response = requests.post(f'{API_URL_BASE}/trends/', json={
             'location': {
                 'latitude': latitude,
                 'longitude': longitude,
