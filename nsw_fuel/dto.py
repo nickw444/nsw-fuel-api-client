@@ -1,9 +1,12 @@
 from datetime import datetime
 from enum import Enum
+from typing import Optional, TypeVar, Callable, Any
 
 
 class Price(object):
-    def __init__(self, fuel_type: str, price: float, last_updated, price_unit: str, station_code):
+    def __init__(self, fuel_type: str, price: float,
+                 last_updated: datetime, price_unit: Optional[str],
+                 station_code: Optional[int]) -> None:
         self.fuel_type = fuel_type
         self.price = price
         self.last_updated = last_updated
@@ -11,21 +14,25 @@ class Price(object):
         self.station_code = station_code
 
     @classmethod
-    def deserialize(cls, data: dict):
+    def deserialize(cls, data: dict) -> Price:
+        lastupdated = datetime.strptime(data['lastupdated'], '%Y-%m-%d %H:%M:%S')
+        station_code = data.get('stationcode')  # type: Optional[int]
         return Price(
             fuel_type=data['fueltype'],
             price=data['price'],
-            last_updated=data['lastupdated'],
+            last_updated=lastupdated,
             price_unit=data.get('priceunit'),
-            station_code=data.get('stationcode')
+            station_code=station_code
         )
 
-    def __repr__(self):
-        return '<Price fuel_type={} price={}>'.format(self.fuel_type, self.price)
+    def __repr__(self) -> str:
+        return '<Price fuel_type={} price={}>'.format(
+            self.fuel_type, self.price)
 
 
 class Station(object):
-    def __init__(self, id, brand, code, name, address):
+    def __init__(self, id: str, brand: str, code: int, name: str,
+                 address: str) -> None:
         self.id = id
         self.brand = brand
         self.code = code
@@ -33,7 +40,7 @@ class Station(object):
         self.address = address
 
     @classmethod
-    def deserialize(cls, data: dict):
+    def deserialize(cls, data: dict) -> Station:
         return Station(
             id=data['stationid'],
             brand=data['brand'],
@@ -42,8 +49,9 @@ class Station(object):
             address=data['address']
         )
 
-    def __repr__(self):
-        return '<Station id={} code={} brand={} name={}>'.format(self.id, self.code, self.brand, self.name)
+    def __repr__(self) -> str:
+        return '<Station id={} code={} brand={} name={}>'.format(
+            self.id, self.code, self.brand, self.name)
 
 
 class Period(Enum):
@@ -54,20 +62,20 @@ class Period(Enum):
 
 
 class Variance(object):
-    def __init__(self, fuel_type, period, price):
+    def __init__(self, fuel_type: str, period: Period, price: float) -> None:
         self.fuel_type = fuel_type
         self.period = period
         self.price = price
 
     @classmethod
-    def deserialize(cls, data: dict):
+    def deserialize(cls, data: dict) -> Variance:
         return Variance(
             fuel_type=data['Code'],
             period=Period(data['Period']),
             price=data['Price'],
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<Variance fuel_type={} period={} price={}>'.format(
             self.fuel_type,
             self.period,
@@ -76,14 +84,15 @@ class Variance(object):
 
 
 class AveragePrice(object):
-    def __init__(self, fuel_type, period, price, captured):
+    def __init__(self, fuel_type: str, period: Period, price: float,
+                 captured: datetime) -> None:
         self.fuel_type = fuel_type
         self.period = period
         self.price = price
         self.captured = captured
 
     @classmethod
-    def deserialize(cls, data: dict):
+    def deserialize(cls, data: dict) -> AveragePrice:
         period = Period(data['Period'])
 
         captured_raw = data['Captured']
@@ -101,8 +110,9 @@ class AveragePrice(object):
             captured=captured,
         )
 
-    def __repr__(self):
-        return '<AveragePrice fuel_type={} period={} price={} captured={}>'.format(
+    def __repr__(self) -> str:
+        return ('<AveragePrice fuel_type={} period={} price={} '
+                'captured={}>').format(
             self.fuel_type,
             self.period,
             self.price,

@@ -59,3 +59,5 @@ VERSION
 Pipfile
 Pipfile.lock
 .idea
+
+.mypy_cache

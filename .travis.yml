@@ -3,11 +3,12 @@ python:
   - "3.6"
 
 install:
-  - pip install coveralls flake8
+  - pip install coveralls flake8 mypy
   - pip install .
 
 script: 
-  - flake8 .
+  - flake8 nsw_fuel
+  - mypy --strict nsw_fuel
   - coverage run --source=nsw_fuel setup.py test
 
 after_success: coveralls
