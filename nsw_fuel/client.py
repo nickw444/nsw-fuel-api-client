@@ -30,9 +30,8 @@ class FuelCheckClient():
 
     def get_fuel_prices_for_station(self, station: int) -> List[Price]:
         """Gets the fuel prices for a specific fuel station."""
-        response = requests.get(
-            f'{API_URL_BASE}/station/{station}',
-            headers=self._get_headers())
+        response = requests.get('{}/station/{}'.format(API_URL_BASE, station),
+                                headers=self._get_headers())
         data = response.json()
         return [Price.deserialize(data) for data in data['prices']]
 
@@ -44,7 +43,7 @@ class FuelCheckClient():
 
         if brands is None:
             brands = []
-        response = requests.post(f'{API_URL_BASE}/nearby', json={
+        response = requests.post('{}/nearby'.format(API_URL_BASE), json={
             'fueltype': fuel_type,
             'latitude': latitude,
             'longitude': longitude,
@@ -69,7 +68,7 @@ class FuelCheckClient():
     def get_fuel_price_trends(self, latitude: float, longitude: float,
                               fuel_types: List[str]) -> PriceTrends:
         """Gets the fuel price trends for the given location and fuel types."""
-        response = requests.post(f'{API_URL_BASE}/trends/', json={
+        response = requests.post('{}/trends/'.format(API_URL_BASE), json={
             'location': {
                 'latitude': latitude,
                 'longitude': longitude,

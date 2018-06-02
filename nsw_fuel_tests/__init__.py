@@ -12,7 +12,7 @@ class FuelCheckClientTest(unittest.TestCase):
 
     @requests_mock.Mocker()
     def test_get_fuel_prices_for_station(self, m) -> None:
-        m.get(f'{API_URL_BASE}/station/100', json={
+        m.get('{}/station/100'.format(API_URL_BASE), json={
             'prices': [
                 {
                     'fueltype': 'E10',
@@ -42,7 +42,7 @@ class FuelCheckClientTest(unittest.TestCase):
 
     @requests_mock.Mocker()
     def test_get_fuel_prices_within_radius(self, m) -> None:
-        m.post(f'{API_URL_BASE}/nearby', json={
+        m.post('{}/nearby'.format(API_URL_BASE), json={
             'stations': [
                 {
                     'stationid': 'SAAAAAA',
@@ -113,7 +113,7 @@ class FuelCheckClientTest(unittest.TestCase):
 
     @requests_mock.Mocker()
     def test_get_fuel_price_trends(self, m) -> None:
-        m.post(f'{API_URL_BASE}/trends/', json={
+        m.post('{}/trends/'.format(API_URL_BASE), json={
             'Variances': [
                 {'Code': 'E10', 'Period': 'Day', 'Price': 150.0},
                 {'Code': 'E10', 'Period': 'Week', 'Price': 151.0},
