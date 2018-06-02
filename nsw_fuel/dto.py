@@ -14,7 +14,7 @@ class Price(object):
         self.station_code = station_code
 
     @classmethod
-    def deserialize(cls, data: dict) -> Price:
+    def deserialize(cls, data: dict) -> 'Price':
         lastupdated = datetime.strptime(data['lastupdated'], '%Y-%m-%d %H:%M:%S')
         station_code = data.get('stationcode')  # type: Optional[int]
         return Price(
@@ -40,7 +40,7 @@ class Station(object):
         self.address = address
 
     @classmethod
-    def deserialize(cls, data: dict) -> Station:
+    def deserialize(cls, data: dict) -> 'Station':
         return Station(
             id=data['stationid'],
             brand=data['brand'],
@@ -68,7 +68,7 @@ class Variance(object):
         self.price = price
 
     @classmethod
-    def deserialize(cls, data: dict) -> Variance:
+    def deserialize(cls, data: dict) -> 'Variance':
         return Variance(
             fuel_type=data['Code'],
             period=Period(data['Period']),
@@ -92,7 +92,7 @@ class AveragePrice(object):
         self.captured = captured
 
     @classmethod
-    def deserialize(cls, data: dict) -> AveragePrice:
+    def deserialize(cls, data: dict) -> 'AveragePrice':
         period = Period(data['Period'])
 
         captured_raw = data['Captured']

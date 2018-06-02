@@ -22,6 +22,7 @@ class FuelCheckClient():
         }
 
     def get_fuel_prices_for_station(self, station: int) -> List[Price]:
+        """Gets the fuel prices for a specific fuel station."""
         response = requests.get(
             f'{API_URL_BASE}/station/{station}',
             headers=self._get_headers())
@@ -32,6 +33,7 @@ class FuelCheckClient():
             self, latitude: float, longitude: float, radius: int,
             fuel_type: str, brands: Optional[List[str]] = None
     ) -> List[Tuple[Price, Station]]:
+        """Gets all the fuel prices within the specified radius."""
 
         if brands is None:
             brands = []
@@ -56,6 +58,7 @@ class FuelCheckClient():
 
     def get_fuel_price_trends(self, latitude: float, longitude: float,
                               fuel_types: List[str]) -> PriceTrends:
+        """Gets the fuel price trends for the given location and fuel types."""
         response = requests.post(f'{API_URL_BASE}/trends/', json={
             'location': {
                 'latitude': latitude,
