@@ -18,6 +18,7 @@ before_deploy:
 
 deploy:
   provider: pypi
+  skip_cleanup: true
   user: nickw444-deploy
   password: "$PYPI_PASSWORD"
   on: 
