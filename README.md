@@ -5,6 +5,3 @@ nsw-fuel-api-client
 [![](https://img.shields.io/pypi/v/nsw-fuel-api-client.svg)](https://pypi.python.org/pypi/nsw-fuel-api-client/)
     
 API Client for NSW fuel prices.
-
-### Example Usage
-
