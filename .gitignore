@@ -61,3 +61,5 @@ Pipfile.lock
 .idea
 
 .mypy_cache
+.eggs
+
