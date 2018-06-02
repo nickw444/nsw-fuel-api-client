@@ -3,7 +3,7 @@ from enum import Enum
 
 
 class Price(object):
-    def __init__(self, fuel_type, price, last_updated, price_unit, station_code):
+    def __init__(self, fuel_type: str, price: float, last_updated, price_unit: str, station_code):
         self.fuel_type = fuel_type
         self.price = price
         self.last_updated = last_updated
