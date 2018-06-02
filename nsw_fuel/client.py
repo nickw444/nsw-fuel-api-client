@@ -7,15 +7,15 @@ from .dto import Price, Station, Variance, AveragePrice
 
 API_URL_BASE = 'https://api.onegov.nsw.gov.au/FuelCheckApp/v1/fuel/prices'
 
+PriceTrends = NamedTuple('PriceTrends', [
+    ('variances', List[Variance]),
+    ('average_prices', List[AveragePrice])
+])
 
-class PriceTrends(NamedTuple):
-    variances: List[Variance]
-    average_prices: List[AveragePrice]
-
-
-class StationPrice(NamedTuple):
-    price: Price
-    station: Station
+StationPrice = NamedTuple('StationPrice', [
+    ('price', Price),
+    ('station', Station)
+])
 
 
 class FuelCheckClient():
