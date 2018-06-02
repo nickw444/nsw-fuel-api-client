@@ -40,5 +40,5 @@ setup(
         'Programming Language :: Python',
     ],
     test_suite="nsw_fuel_tests",
-    tests_require=['mock']
+    tests_require=['requests-mock']
 )
