@@ -31,6 +31,7 @@ setup(
     author_email='nick@nickwhyte.com',
     description="API Client for NSW Government Fuel",
     long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/nickw444/nsw-fuel-api-client',
     zip_safe=False,
     install_requires=['requests'],
