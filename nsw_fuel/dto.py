@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Optional, TypeVar, Callable, Any
+from typing import Optional
 
 
 class Price(object):
