@@ -1,14 +1,21 @@
 import datetime
-from collections import namedtuple
 
 import requests
-from typing import List, Tuple, Optional
+from typing import List, Optional, NamedTuple
 
 from .dto import Price, Station, Variance, AveragePrice
 
 API_URL_BASE = 'https://api.onegov.nsw.gov.au/FuelCheckApp/v1/fuel/prices'
 
-PriceTrends = namedtuple('PriceTrends', ['variances', 'average_prices'])
+
+class PriceTrends(NamedTuple):
+    variances: List[Variance]
+    average_prices: List[AveragePrice]
+
+
+class StationPrice(NamedTuple):
+    price: Price
+    station: Station
 
 
 class FuelCheckClient():
@@ -32,7 +39,7 @@ class FuelCheckClient():
     def get_fuel_prices_within_radius(
             self, latitude: float, longitude: float, radius: int,
             fuel_type: str, brands: Optional[List[str]] = None
-    ) -> List[Tuple[Price, Station]]:
+    ) -> List[StationPrice]:
         """Gets all the fuel prices within the specified radius."""
 
         if brands is None:
@@ -49,10 +56,13 @@ class FuelCheckClient():
             station['code']: Station.deserialize(station)
             for station in data['stations']
         }
-        station_prices = []
+        station_prices = []  # type: List[StationPrice]
         for serialized_price in data['prices']:
             price = Price.deserialize(serialized_price)
-            station_prices.append((price, stations[price.station_code]))
+            station_prices.append(StationPrice(
+                price=price,
+                station=stations[price.station_code]
+            ))
 
         return station_prices
 

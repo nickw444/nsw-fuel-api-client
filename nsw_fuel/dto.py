@@ -5,7 +5,7 @@ from typing import Optional
 
 class Price(object):
     def __init__(self, fuel_type: str, price: float,
-                 last_updated: datetime, price_unit: Optional[str],
+                 last_updated: Optional[datetime], price_unit: Optional[str],
                  station_code: Optional[int]) -> None:
         self.fuel_type = fuel_type
         self.price = price
@@ -15,7 +15,18 @@ class Price(object):
 
     @classmethod
     def deserialize(cls, data: dict) -> 'Price':
-        lastupdated = datetime.strptime(data['lastupdated'], '%Y-%m-%d %H:%M:%S')
+
+        # Stupid API has two different date representations! :O
+        lastupdated = None
+        try:
+            lastupdated = datetime.strptime(data['lastupdated'], '%d/%m/%Y %H:%M:%S')
+        except ValueError:
+            pass
+        try:
+            lastupdated = datetime.strptime(data['lastupdated'], '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            pass
+
         station_code = data.get('stationcode')  # type: Optional[int]
         return Price(
             fuel_type=data['fueltype'],

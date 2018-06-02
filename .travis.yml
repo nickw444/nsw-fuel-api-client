@@ -8,7 +8,7 @@ install:
 
 script: 
   - flake8 nsw_fuel nsw_fuel_tests
-  - mypy --strict nsw_fuel nsw_fuel_tests
+  - mypy --strict nsw_fuel
   - coverage run --source=nsw_fuel setup.py test
 
 after_success: coveralls
