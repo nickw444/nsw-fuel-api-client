@@ -1,5 +1,6 @@
 import datetime
 import unittest
+
 import requests_mock
 
 from nsw_fuel import FuelCheckClient, Period, FuelCheckError
@@ -156,7 +157,7 @@ class FuelCheckClientTest(unittest.TestCase):
                          datetime.datetime(year=2017, month=10, day=1))
 
     @requests_mock.Mocker()
-    def test_get_fuel_prices_for_station_error(self, m):
+    def test_get_fuel_prices_for_station_client_error(self, m):
         m.get(
             '{}/station/21199'.format(API_URL_BASE),
             status_code=400,
@@ -170,5 +171,55 @@ class FuelCheckClientTest(unittest.TestCase):
             }
         )
         client = FuelCheckClient()
-        with self.assertRaises(FuelCheckError):
+        with self.assertRaises(FuelCheckError) as cm:
             client.get_fuel_prices_for_station(21199)
+
+        self.assertEqual(str(cm.exception), 'Invalid service station code "21199"')
+
+    @requests_mock.Mocker()
+    def test_get_fuel_prices_for_station_server_error(self, m):
+        m.get(
+            '{}/station/21199'.format(API_URL_BASE),
+            status_code=500,
+            text='Internal Server Error.',
+        )
+        client = FuelCheckClient()
+        with self.assertRaises(FuelCheckError) as cm:
+            client.get_fuel_prices_for_station(21199)
+
+        self.assertEqual(str(cm.exception), 'Internal Server Error.')
+
+    @requests_mock.Mocker()
+    def test_get_fuel_prices_within_radius_server_error(self, m):
+        m.post(
+            '{}/nearby'.format(API_URL_BASE),
+            status_code=500,
+            text='Internal Server Error.',
+        )
+        client = FuelCheckClient()
+        with self.assertRaises(FuelCheckError) as cm:
+            client.get_fuel_prices_within_radius(
+                longitude=151.0,
+                latitude=-33.0,
+                radius=10,
+                fuel_type='E10',
+            )
+
+        self.assertEqual(str(cm.exception), 'Internal Server Error.')
+
+    @requests_mock.Mocker()
+    def test_get_fuel_price_trends_server_error(self, m):
+        m.post(
+            '{}/trends/'.format(API_URL_BASE),
+            status_code=500,
+            text='Internal Server Error.',
+        )
+        client = FuelCheckClient()
+        with self.assertRaises(FuelCheckError) as cm:
+            client.get_fuel_price_trends(
+                longitude=151.0,
+                latitude=-33.0,
+                fuel_types=['E10', 'P95']
+            )
+
+        self.assertEqual(str(cm.exception), 'Internal Server Error.')

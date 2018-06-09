@@ -1,8 +1,8 @@
-import json
 from datetime import datetime
 from enum import Enum
-from json import JSONDecodeError
 from typing import Optional
+
+from requests import Response
 
 
 class Price(object):
@@ -140,16 +140,19 @@ class FuelCheckError(Exception):
         self.error_code = error_code
 
     @classmethod
-    def deserialize(cls, response: str) -> 'FuelCheckError':
+    def create(cls, response: Response) -> 'FuelCheckError':
         error_code = None
-        description = response
+        description = response.text
         try:
-            data = json.loads(response)
+            data = response.json()
             if 'errorDetails' in data and len(data['errorDetails']) > 0:
                 error_details = data['errorDetails'][0]
                 error_code = error_details.get('code')
                 description = error_details.get('description')
-        except JSONDecodeError:
+        except ValueError:
             pass
 
-        return FuelCheckError(error_code=error_code, description=description)
+        return FuelCheckError(
+            error_code=error_code,
+            description=description
+        )

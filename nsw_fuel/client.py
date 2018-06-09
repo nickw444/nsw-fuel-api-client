@@ -37,7 +37,7 @@ class FuelCheckClient():
         )
 
         if not response.ok:
-            raise FuelCheckError.deserialize(response.text)
+            raise FuelCheckError.create(response)
 
         data = response.json()
         return [Price.deserialize(data) for data in data['prices']]
@@ -64,7 +64,7 @@ class FuelCheckClient():
         )
 
         if not response.ok:
-            raise FuelCheckError.deserialize(response.text)
+            raise FuelCheckError.create(response)
 
         data = response.json()
         stations = {
@@ -98,7 +98,7 @@ class FuelCheckClient():
         )
 
         if not response.ok:
-            raise FuelCheckError.deserialize(response.text)
+            raise FuelCheckError.create(response)
 
         data = response.json()
         return PriceTrends(
