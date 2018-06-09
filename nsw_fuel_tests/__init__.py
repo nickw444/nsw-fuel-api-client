@@ -1,8 +1,9 @@
 import datetime
 import unittest
-import requests_mock
 
-from nsw_fuel import FuelCheckClient, Period
+from requests_mock import Mocker
+
+from nsw_fuel import FuelCheckClient, Period, FuelCheckError
 from nsw_fuel.client import API_URL_BASE
 
 
@@ -10,8 +11,8 @@ class FuelCheckClientTest(unittest.TestCase):
     def test_construction(self) -> None:
         FuelCheckClient()
 
-    @requests_mock.Mocker()
-    def test_get_fuel_prices_for_station(self, m) -> None:
+    @Mocker()
+    def test_get_fuel_prices_for_station(self, m: Mocker) -> None:
         m.get('{}/station/100'.format(API_URL_BASE), json={
             'prices': [
                 {
@@ -40,8 +41,8 @@ class FuelCheckClientTest(unittest.TestCase):
             second=4,
         ))
 
-    @requests_mock.Mocker()
-    def test_get_fuel_prices_within_radius(self, m) -> None:
+    @Mocker()
+    def test_get_fuel_prices_within_radius(self, m: Mocker) -> None:
         m.post('{}/nearby'.format(API_URL_BASE), json={
             'stations': [
                 {
@@ -111,8 +112,8 @@ class FuelCheckClientTest(unittest.TestCase):
         self.assertEqual(result[0].station.code, 678)
         self.assertEqual(result[0].price.price, 150.9)
 
-    @requests_mock.Mocker()
-    def test_get_fuel_price_trends(self, m) -> None:
+    @Mocker()
+    def test_get_fuel_price_trends(self, m: Mocker) -> None:
         m.post('{}/trends/'.format(API_URL_BASE), json={
             'Variances': [
                 {'Code': 'E10', 'Period': 'Day', 'Price': 150.0},
@@ -154,3 +155,71 @@ class FuelCheckClientTest(unittest.TestCase):
         self.assertEqual(result.average_prices[1].period, Period.YEAR)
         self.assertEqual(result.average_prices[1].captured,
                          datetime.datetime(year=2017, month=10, day=1))
+
+    @Mocker()
+    def test_get_fuel_prices_for_station_client_error(self, m: Mocker) -> None:
+        m.get(
+            '{}/station/21199'.format(API_URL_BASE),
+            status_code=400,
+            json={
+                "errorDetails": [
+                    {
+                        "code": "E0014",
+                        "description": "Invalid service station code \"21199\""
+                    }
+                ]
+            }
+        )
+        client = FuelCheckClient()
+        with self.assertRaises(FuelCheckError) as cm:
+            client.get_fuel_prices_for_station(21199)
+
+        self.assertEqual(str(cm.exception), 'Invalid service station code "21199"')
+
+    @Mocker()
+    def test_get_fuel_prices_for_station_server_error(self, m: Mocker) -> None:
+        m.get(
+            '{}/station/21199'.format(API_URL_BASE),
+            status_code=500,
+            text='Internal Server Error.',
+        )
+        client = FuelCheckClient()
+        with self.assertRaises(FuelCheckError) as cm:
+            client.get_fuel_prices_for_station(21199)
+
+        self.assertEqual(str(cm.exception), 'Internal Server Error.')
+
+    @Mocker()
+    def test_get_fuel_prices_within_radius_server_error(self, m: Mocker) -> None:
+        m.post(
+            '{}/nearby'.format(API_URL_BASE),
+            status_code=500,
+            text='Internal Server Error.',
+        )
+        client = FuelCheckClient()
+        with self.assertRaises(FuelCheckError) as cm:
+            client.get_fuel_prices_within_radius(
+                longitude=151.0,
+                latitude=-33.0,
+                radius=10,
+                fuel_type='E10',
+            )
+
+        self.assertEqual(str(cm.exception), 'Internal Server Error.')
+
+    @Mocker()
+    def test_get_fuel_price_trends_server_error(self, m: Mocker) -> None:
+        m.post(
+            '{}/trends/'.format(API_URL_BASE),
+            status_code=500,
+            text='Internal Server Error.',
+        )
+        client = FuelCheckClient()
+        with self.assertRaises(FuelCheckError) as cm:
+            client.get_fuel_price_trends(
+                longitude=151.0,
+                latitude=-33.0,
+                fuel_types=['E10', 'P95']
+            )
+
+        self.assertEqual(str(cm.exception), 'Internal Server Error.')

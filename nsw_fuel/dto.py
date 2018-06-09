@@ -2,6 +2,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
+from requests import Response
+
 
 class Price(object):
     def __init__(self, fuel_type: str, price: float,
@@ -128,4 +130,29 @@ class AveragePrice(object):
             self.period,
             self.price,
             self.captured
+        )
+
+
+class FuelCheckError(Exception):
+    def __init__(self, error_code: Optional[str] = None,
+                 description: Optional[str] = None) -> None:
+        super(FuelCheckError, self).__init__(description)
+        self.error_code = error_code
+
+    @classmethod
+    def create(cls, response: Response) -> 'FuelCheckError':
+        error_code = None
+        description = response.text
+        try:
+            data = response.json()
+            if 'errorDetails' in data and len(data['errorDetails']) > 0:
+                error_details = data['errorDetails'][0]
+                error_code = error_details.get('code')
+                description = error_details.get('description')
+        except ValueError:
+            pass
+
+        return FuelCheckError(
+            error_code=error_code,
+            description=description
         )
