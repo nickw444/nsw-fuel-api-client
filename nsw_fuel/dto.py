@@ -129,3 +129,24 @@ class AveragePrice(object):
             self.price,
             self.captured
         )
+
+
+class FuelCheckError(Exception):
+    def __init__(self, error_code: Optional[str] = None, description: Optional[str] = None):
+        super(FuelCheckError, self).__init__(description)
+        self.error_code = error_code
+
+    @classmethod
+    def deserialize(cls, response: str):
+        error_code = None
+        description = response
+        try:
+            data = json.loads(response)
+            if 'errorDetails' in data and len(data['errorDetails']) > 0:
+                error_details = data['errorDetails'][0]
+                error_code = error_details.get('code')
+                description = error_details.get('description')
+        except:
+            pass
+
+        return FuelCheckError(error_code=error_code, description=description)

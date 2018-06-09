@@ -1,9 +1,10 @@
 import datetime
-
-import requests
+import json
 from typing import List, Optional, NamedTuple
 
-from .dto import Price, Station, Variance, AveragePrice
+import requests
+
+from .dto import Price, Station, Variance, AveragePrice, FuelCheckError
 
 API_URL_BASE = 'https://api.onegov.nsw.gov.au/FuelCheckApp/v1/fuel/prices'
 
@@ -16,7 +17,6 @@ StationPrice = NamedTuple('StationPrice', [
     ('price', Price),
     ('station', Station)
 ])
-
 
 class FuelCheckClient():
     def __init__(self, timeout: Optional[int] = 10) -> None:
@@ -35,6 +35,10 @@ class FuelCheckClient():
             headers=self._get_headers(),
             timeout=self._timeout,
         )
+
+        if not response.ok:
+            raise FuelCheckError.deserialize(response.text)
+
         data = response.json()
         return [Price.deserialize(data) for data in data['prices']]
 
@@ -58,6 +62,10 @@ class FuelCheckClient():
             headers=self._get_headers(),
             timeout=self._timeout,
         )
+
+        if not response.ok:
+            raise FuelCheckError.deserialize(response.text)
+
         data = response.json()
         stations = {
             station['code']: Station.deserialize(station)
@@ -88,6 +96,10 @@ class FuelCheckClient():
             headers=self._get_headers(),
             timeout=self._timeout,
         )
+
+        if not response.ok:
+            raise FuelCheckError.deserialize(response.text)
+
         data = response.json()
         return PriceTrends(
             variances=[
