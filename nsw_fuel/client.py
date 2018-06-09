@@ -19,8 +19,8 @@ StationPrice = NamedTuple('StationPrice', [
 
 
 class FuelCheckClient():
-    def __init__(self) -> None:
-        pass
+    def __init__(self, timeout: Optional[int] = 10) -> None:
+        self._timeout = timeout
 
     def _get_headers(self) -> dict:
         return {
@@ -30,8 +30,11 @@ class FuelCheckClient():
 
     def get_fuel_prices_for_station(self, station: int) -> List[Price]:
         """Gets the fuel prices for a specific fuel station."""
-        response = requests.get('{}/station/{}'.format(API_URL_BASE, station),
-                                headers=self._get_headers())
+        response = requests.get(
+            '{}/station/{}'.format(API_URL_BASE, station),
+            headers=self._get_headers(),
+            timeout=self._timeout,
+        )
         data = response.json()
         return [Price.deserialize(data) for data in data['prices']]
 
@@ -43,13 +46,18 @@ class FuelCheckClient():
 
         if brands is None:
             brands = []
-        response = requests.post('{}/nearby'.format(API_URL_BASE), json={
-            'fueltype': fuel_type,
-            'latitude': latitude,
-            'longitude': longitude,
-            'radius': radius,
-            'brand': brands,
-        }, headers=self._get_headers())
+        response = requests.post(
+            '{}/nearby'.format(API_URL_BASE),
+            json={
+                'fueltype': fuel_type,
+                'latitude': latitude,
+                'longitude': longitude,
+                'radius': radius,
+                'brand': brands,
+            },
+            headers=self._get_headers(),
+            timeout=self._timeout,
+        )
         data = response.json()
         stations = {
             station['code']: Station.deserialize(station)
@@ -68,13 +76,18 @@ class FuelCheckClient():
     def get_fuel_price_trends(self, latitude: float, longitude: float,
                               fuel_types: List[str]) -> PriceTrends:
         """Gets the fuel price trends for the given location and fuel types."""
-        response = requests.post('{}/trends/'.format(API_URL_BASE), json={
-            'location': {
-                'latitude': latitude,
-                'longitude': longitude,
+        response = requests.post(
+            '{}/trends/'.format(API_URL_BASE),
+            json={
+                'location': {
+                    'latitude': latitude,
+                    'longitude': longitude,
+                },
+                'fueltypes': [{'code': type} for type in fuel_types],
             },
-            'fueltypes': [{'code': type} for type in fuel_types],
-        }, headers=self._get_headers())
+            headers=self._get_headers(),
+            timeout=self._timeout,
+        )
         data = response.json()
         return PriceTrends(
             variances=[
