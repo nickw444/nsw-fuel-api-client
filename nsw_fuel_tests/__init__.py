@@ -2,7 +2,7 @@ import datetime
 import unittest
 import requests_mock
 
-from nsw_fuel import FuelCheckClient, Period
+from nsw_fuel import FuelCheckClient, Period, FuelCheckError
 from nsw_fuel.client import API_URL_BASE
 
 
@@ -154,3 +154,21 @@ class FuelCheckClientTest(unittest.TestCase):
         self.assertEqual(result.average_prices[1].period, Period.YEAR)
         self.assertEqual(result.average_prices[1].captured,
                          datetime.datetime(year=2017, month=10, day=1))
+
+    @requests_mock.Mocker()
+    def test_get_fuel_prices_for_station_error(self, m):
+        m.get(
+            '{}/station/21199'.format(API_URL_BASE),
+            status_code=400,
+            json={
+                "errorDetails": [
+                    {
+                        "code": "E0014",
+                        "description": "Invalid service station code \"21199\""
+                    }
+                ]
+            }
+        )
+        client = FuelCheckClient()
+        with self.assertRaises(FuelCheckError):
+            client.get_fuel_prices_for_station(21199)

@@ -1,5 +1,7 @@
+import json
 from datetime import datetime
 from enum import Enum
+from json import JSONDecodeError
 from typing import Optional
 
 
@@ -132,12 +134,13 @@ class AveragePrice(object):
 
 
 class FuelCheckError(Exception):
-    def __init__(self, error_code: Optional[str] = None, description: Optional[str] = None):
+    def __init__(self, error_code: Optional[str] = None,
+                 description: Optional[str] = None) -> None:
         super(FuelCheckError, self).__init__(description)
         self.error_code = error_code
 
     @classmethod
-    def deserialize(cls, response: str):
+    def deserialize(cls, response: str) -> 'FuelCheckError':
         error_code = None
         description = response
         try:
@@ -146,7 +149,7 @@ class FuelCheckError(Exception):
                 error_details = data['errorDetails'][0]
                 error_code = error_details.get('code')
                 description = error_details.get('description')
-        except:
+        except JSONDecodeError:
             pass
 
         return FuelCheckError(error_code=error_code, description=description)

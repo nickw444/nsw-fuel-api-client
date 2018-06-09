@@ -1,5 +1,4 @@
 import datetime
-import json
 from typing import List, Optional, NamedTuple
 
 import requests
@@ -17,6 +16,7 @@ StationPrice = NamedTuple('StationPrice', [
     ('price', Price),
     ('station', Station)
 ])
+
 
 class FuelCheckClient():
     def __init__(self, timeout: Optional[int] = 10) -> None:
