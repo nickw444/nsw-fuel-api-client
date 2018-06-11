@@ -1,0 +1,72 @@
+{
+  "brands": {
+    "items": [
+      {
+        "name": "Cool Fuel Brand"
+      },
+      {
+        "name": "Fake Fuel Brand"
+      }
+    ]
+  },
+  "fueltypes": {
+    "items": [
+      {
+        "code": "E10",
+        "name": "Ethanol 94"
+      },
+      {
+        "code": "U91",
+        "name": "Unleaded 91"
+      }
+    ]
+  },
+  "stations": {
+    "items": [
+      {
+        "brand": "Cool Fuel Brand",
+        "code": "1",
+        "name": "Cool Fuel Brand Hurstville",
+        "address": "123 Fake Street, Hurstville",
+        "location": {
+          "latitude": -33.00000,
+          "longitude": 151.00000
+        }
+      },
+      {
+        "brand": "Fake Fuel Brand",
+        "code": "2",
+        "name": "Fake Fuel Brand Kogarah",
+        "address": "123 Fake Street, Kogarah",
+        "location": {
+          "latitude": -31.00000,
+          "longitude": 152.00000
+        }
+      }
+    ]
+  },
+  "trendperiods": {
+    "items": [
+      {
+        "period": "Day",
+        "description": "Description for day"
+      },
+      {
+        "period": "Month",
+        "description": "Description for month"
+      }
+    ]
+  },
+  "sortfields": {
+    "items": [
+      {
+        "code": "Sort 1",
+        "name": "Sort field 1"
+      },
+      {
+        "code": "Sort 2",
+        "name": "Sort field 2"
+      }
+    ]
+  }
+}

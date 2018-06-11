@@ -1,0 +1,56 @@
+{
+  "stations": [
+    {
+      "brand": "Cool Fuel Brand",
+      "code": "1",
+      "name": "Cool Fuel Brand Hurstville",
+      "address": "123 Fake Street, Hurstville",
+      "location": {
+        "latitude": -33.00000,
+        "longitude": 151.00000
+      }
+    },
+    {
+      "brand": "Fake Fuel Brand",
+      "code": "2",
+      "name": "Fake Fuel Brand Kogarah",
+      "address": "123 Fake Street, Kogarah",
+      "location": {
+        "latitude": -31.00000,
+        "longitude": 152.00000
+      }
+    }
+  ],
+  "prices": [
+    {
+      "stationcode": "1",
+      "fueltype": "DL",
+      "price": 157.9,
+      "lastupdated": "29/05/2018 23:28:20"
+    },
+    {
+      "stationcode": "1",
+      "fueltype": "E10",
+      "price": 156.4,
+      "lastupdated": "29/05/2018 07:18:17"
+    },
+    {
+      "stationcode": "1",
+      "fueltype": "P95",
+      "price": 174.9,
+      "lastupdated": "07/06/2018 08:05:19"
+    },
+    {
+      "stationcode": "2",
+      "fueltype": "P95",
+      "price": 175.9,
+      "lastupdated": "23/05/2018 21:51:23"
+    },
+    {
+      "stationcode": "2",
+      "fueltype": "P98",
+      "price": 182.9,
+      "lastupdated": "23/05/2018 21:51:23"
+    }
+  ]
+}

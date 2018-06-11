@@ -3,9 +3,10 @@ from typing import List, Optional, NamedTuple
 
 import requests
 
-from .dto import Price, Station, Variance, AveragePrice, FuelCheckError
+from .dto import (Price, Station, Variance, AveragePrice,
+                  FuelCheckError, GetReferenceDataResponse, GetFuelPricesResponse)
 
-API_URL_BASE = 'https://api.onegov.nsw.gov.au/FuelCheckApp/v1/fuel/prices'
+API_URL_BASE = 'https://api.onegov.nsw.gov.au/FuelCheckApp/v1/fuel'
 
 PriceTrends = NamedTuple('PriceTrends', [
     ('variances', List[Variance]),
@@ -22,16 +23,32 @@ class FuelCheckClient():
     def __init__(self, timeout: Optional[int] = 10) -> None:
         self._timeout = timeout
 
+    def _format_dt(self, dt: datetime.datetime):
+        return dt.strftime('%d/%m/%Y %H:%M:%S')
+
     def _get_headers(self) -> dict:
         return {
-            'requesttimestamp': datetime.datetime.now().strftime(
-                '%d/%m/%Y %H:%M:%S')
+            'requesttimestamp': self._format_dt(datetime.datetime.now())
         }
+
+    def get_fuel_prices(self):
+        """Fetches fuel prices for all stations."""
+        response = requests.get(
+            '{}/prices'.format(API_URL_BASE),
+            headers=self._get_headers(),
+            timeout=self._timeout,
+        )
+
+        if not response.ok:
+            raise FuelCheckError.create(response)
+
+        return GetFuelPricesResponse.deserialize(response.json())
+
 
     def get_fuel_prices_for_station(self, station: int) -> List[Price]:
         """Gets the fuel prices for a specific fuel station."""
         response = requests.get(
-            '{}/station/{}'.format(API_URL_BASE, station),
+            '{}/prices/station/{}'.format(API_URL_BASE, station),
             headers=self._get_headers(),
             timeout=self._timeout,
         )
@@ -51,7 +68,7 @@ class FuelCheckClient():
         if brands is None:
             brands = []
         response = requests.post(
-            '{}/nearby'.format(API_URL_BASE),
+            '{}/prices/nearby'.format(API_URL_BASE),
             json={
                 'fueltype': fuel_type,
                 'latitude': latitude,
@@ -85,7 +102,7 @@ class FuelCheckClient():
                               fuel_types: List[str]) -> PriceTrends:
         """Gets the fuel price trends for the given location and fuel types."""
         response = requests.post(
-            '{}/trends/'.format(API_URL_BASE),
+            '{}/prices/trends/'.format(API_URL_BASE),
             json={
                 'location': {
                     'latitude': latitude,
@@ -111,3 +128,30 @@ class FuelCheckClient():
                 for avg_price in data['AveragePrices']
             ]
         )
+
+    def get_reference_data(self, modified_since: datetime.datetime = None):
+        """
+        Fetches API reference data.
+
+        :param modified_since: The response will be empty if no
+        changes have been made to the reference data since this
+        timestamp, otherwise all reference data will be returned.
+        """
+
+        if modified_since is None:
+            modified_since = datetime.datetime(year=2010, month=1, day=1)
+
+        response = requests.get(
+            '{}/lovs'.format(API_URL_BASE),
+            headers={
+                'if-modified-since': self._format_dt(modified_since),
+                **self._get_headers(),
+            },
+            timeout=self._timeout,
+        )
+
+        if not response.ok:
+            raise FuelCheckError.create(response)
+
+        # return response.text
+        return GetReferenceDataResponse.deserialize(response.json())
