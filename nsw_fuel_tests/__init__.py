@@ -35,7 +35,7 @@ class FuelCheckClientTest(unittest.TestCase):
             self.assertEqual(response.prices[3].station_code, '2')
 
     @Mocker()
-    def test_get_reference_data_server_error(self, m: Mocker):
+    def test_get_reference_data_server_error(self, m: Mocker) -> None:
         m.get(
             '{}/prices'.format(API_URL_BASE),
             status_code=500,
@@ -263,7 +263,7 @@ class FuelCheckClientTest(unittest.TestCase):
         self.assertEqual(str(cm.exception), 'Internal Server Error.')
 
     @Mocker()
-    def test_get_reference_data(self, m: Mocker):
+    def test_get_reference_data(self, m: Mocker) -> None:
         fixture_path = os.path.join(os.path.dirname(__file__), 'fixtures/lovs.json')
         with open(fixture_path) as fixture:
             m.get(
@@ -287,7 +287,7 @@ class FuelCheckClientTest(unittest.TestCase):
             self.assertEqual(response.sort_fields[0].name, 'Sort field 1')
 
     @Mocker()
-    def test_get_reference_data_client_error(self, m: Mocker):
+    def test_get_reference_data_client_error(self, m: Mocker) -> None:
         m.get(
             '{}/lovs'.format(API_URL_BASE),
             status_code=400,
@@ -305,7 +305,7 @@ class FuelCheckClientTest(unittest.TestCase):
         self.assertEqual(str(cm.exception), 'String was not recognized as a valid DateTime.')
 
     @Mocker()
-    def test_get_reference_data_server_error(self, m: Mocker):
+    def test_get_reference_data_server_error(self, m: Mocker) -> None:
         m.get(
             '{}/lovs'.format(API_URL_BASE),
             status_code=500,

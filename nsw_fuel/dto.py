@@ -175,7 +175,7 @@ class SortField(object):
 class GetReferenceDataResponse(object):
     def __init__(self, stations: List[Station], brands: List[str],
                  fuel_types: List[FuelType], trend_periods: List[TrendPeriod],
-                 sort_fields: List[SortField]):
+                 sort_fields: List[SortField]) -> None:
         self.stations = stations
         self.brands = brands
         self.fuel_types = fuel_types

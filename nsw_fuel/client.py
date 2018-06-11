@@ -23,7 +23,7 @@ class FuelCheckClient():
     def __init__(self, timeout: Optional[int] = 10) -> None:
         self._timeout = timeout
 
-    def _format_dt(self, dt: datetime.datetime):
+    def _format_dt(self, dt: datetime.datetime) -> str:
         return dt.strftime('%d/%m/%Y %H:%M:%S')
 
     def _get_headers(self) -> dict:
@@ -31,7 +31,7 @@ class FuelCheckClient():
             'requesttimestamp': self._format_dt(datetime.datetime.now())
         }
 
-    def get_fuel_prices(self):
+    def get_fuel_prices(self) -> GetFuelPricesResponse:
         """Fetches fuel prices for all stations."""
         response = requests.get(
             '{}/prices'.format(API_URL_BASE),
@@ -129,7 +129,7 @@ class FuelCheckClient():
             ]
         )
 
-    def get_reference_data(self, modified_since: datetime.datetime = None):
+    def get_reference_data(self, modified_since: Optional[datetime.datetime] = None) -> GetReferenceDataResponse:
         """
         Fetches API reference data.
 
