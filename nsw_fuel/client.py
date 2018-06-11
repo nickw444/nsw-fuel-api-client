@@ -44,8 +44,10 @@ class FuelCheckClient():
 
         return GetFuelPricesResponse.deserialize(response.json())
 
-
-    def get_fuel_prices_for_station(self, station: int) -> List[Price]:
+    def get_fuel_prices_for_station(
+            self,
+            station: int
+    ) -> List[Price]:
         """Gets the fuel prices for a specific fuel station."""
         response = requests.get(
             '{}/prices/station/{}'.format(API_URL_BASE, station),
@@ -129,7 +131,10 @@ class FuelCheckClient():
             ]
         )
 
-    def get_reference_data(self, modified_since: Optional[datetime.datetime] = None) -> GetReferenceDataResponse:
+    def get_reference_data(
+            self,
+            modified_since: Optional[datetime.datetime] = None
+    ) -> GetReferenceDataResponse:
         """
         Fetches API reference data.
 

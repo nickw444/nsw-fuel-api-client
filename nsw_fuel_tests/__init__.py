@@ -35,7 +35,7 @@ class FuelCheckClientTest(unittest.TestCase):
             self.assertEqual(response.prices[3].station_code, '2')
 
     @Mocker()
-    def test_get_reference_data_server_error(self, m: Mocker) -> None:
+    def test_get_fuel_prices_server_error(self, m: Mocker) -> None:
         m.get(
             '{}/prices'.format(API_URL_BASE),
             status_code=500,
@@ -47,7 +47,6 @@ class FuelCheckClientTest(unittest.TestCase):
             client.get_fuel_prices()
 
         self.assertEqual(str(cm.exception), 'Internal Server Error.')
-
 
     @Mocker()
     def test_get_fuel_prices_for_station(self, m: Mocker) -> None:
@@ -302,7 +301,10 @@ class FuelCheckClientTest(unittest.TestCase):
         with self.assertRaises(FuelCheckError) as cm:
             client.get_reference_data()
 
-        self.assertEqual(str(cm.exception), 'String was not recognized as a valid DateTime.')
+        self.assertEqual(
+            str(cm.exception),
+            'String was not recognized as a valid DateTime.'
+        )
 
     @Mocker()
     def test_get_reference_data_server_error(self, m: Mocker) -> None:

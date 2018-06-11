@@ -187,7 +187,8 @@ class GetReferenceDataResponse(object):
         stations = [Station.deserialize(x) for x in data['stations']['items']]
         brands = [x['name'] for x in data['brands']['items']]
         fuel_types = [FuelType.deserialize(x) for x in data['fueltypes']['items']]
-        trend_periods = [TrendPeriod.deserialize(x) for x in data['trendperiods']['items']]
+        trend_periods = [TrendPeriod.deserialize(x) for x in
+                         data['trendperiods']['items']]
         sort_fields = [SortField.deserialize(x) for x in data['sortfields']['items']]
 
         return GetReferenceDataResponse(
@@ -202,6 +203,7 @@ class GetReferenceDataResponse(object):
         return ('<GetReferenceDataResponse stations=<{} stations>>').format(
             len(self.stations)
         )
+
 
 class GetFuelPricesResponse(object):
     def __init__(self, stations: List[Station], prices: List[Price]) -> None:
