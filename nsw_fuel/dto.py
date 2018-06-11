@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Optional
+from typing import Optional, List
 
 from requests import Response
 
@@ -44,8 +44,8 @@ class Price(object):
 
 
 class Station(object):
-    def __init__(self, id: str, brand: str, code: int, name: str,
-                 address: str) -> None:
+    def __init__(self, id: Optional[str], brand: str, code: int,
+                 name: str, address: str) -> None:
         self.id = id
         self.brand = brand
         self.code = code
@@ -55,9 +55,9 @@ class Station(object):
     @classmethod
     def deserialize(cls, data: dict) -> 'Station':
         return Station(
-            id=data['stationid'],
+            id=data.get('stationid'),
             brand=data['brand'],
-            code=data['code'],
+            code=int(data['code']),
             name=data['name'],
             address=data['address']
         )
@@ -133,6 +133,93 @@ class AveragePrice(object):
         )
 
 
+class FuelType(object):
+    def __init__(self, code: str, name: str) -> None:
+        self.code = code
+        self.name = name
+
+    @classmethod
+    def deserialize(cls, data: dict) -> 'FuelType':
+        return FuelType(
+            code=data['code'],
+            name=data['name']
+        )
+
+
+class TrendPeriod(object):
+    def __init__(self, period: str, description: str) -> None:
+        self.period = period
+        self.description = description
+
+    @classmethod
+    def deserialize(cls, data: dict) -> 'TrendPeriod':
+        return TrendPeriod(
+            period=data['period'],
+            description=data['description']
+        )
+
+
+class SortField(object):
+    def __init__(self, code: str, name: str) -> None:
+        self.code = code
+        self.name = name
+
+    @classmethod
+    def deserialize(cls, data: dict) -> 'SortField':
+        return SortField(
+            code=data['code'],
+            name=data['name']
+        )
+
+
+class GetReferenceDataResponse(object):
+    def __init__(self, stations: List[Station], brands: List[str],
+                 fuel_types: List[FuelType], trend_periods: List[TrendPeriod],
+                 sort_fields: List[SortField]) -> None:
+        self.stations = stations
+        self.brands = brands
+        self.fuel_types = fuel_types
+        self.trend_periods = trend_periods
+        self.sort_fields = sort_fields
+
+    @classmethod
+    def deserialize(cls, data: dict) -> 'GetReferenceDataResponse':
+        stations = [Station.deserialize(x) for x in data['stations']['items']]
+        brands = [x['name'] for x in data['brands']['items']]
+        fuel_types = [FuelType.deserialize(x) for x in data['fueltypes']['items']]
+        trend_periods = [TrendPeriod.deserialize(x) for x in
+                         data['trendperiods']['items']]
+        sort_fields = [SortField.deserialize(x) for x in data['sortfields']['items']]
+
+        return GetReferenceDataResponse(
+            stations=stations,
+            brands=brands,
+            fuel_types=fuel_types,
+            trend_periods=trend_periods,
+            sort_fields=sort_fields
+        )
+
+    def __repr__(self) -> str:
+        return ('<GetReferenceDataResponse stations=<{} stations>>').format(
+            len(self.stations)
+        )
+
+
+class GetFuelPricesResponse(object):
+    def __init__(self, stations: List[Station], prices: List[Price]) -> None:
+        self.stations = stations
+        self.prices = prices
+
+    @classmethod
+    def deserialize(cls, data: dict) -> 'GetFuelPricesResponse':
+        stations = [Station.deserialize(x) for x in data['stations']]
+        prices = [Price.deserialize(x) for x in data['prices']]
+        return GetFuelPricesResponse(
+            stations=stations,
+            prices=prices
+        )
+
+
 class FuelCheckError(Exception):
     def __init__(self, error_code: Optional[str] = None,
                  description: Optional[str] = None) -> None:
@@ -145,10 +232,16 @@ class FuelCheckError(Exception):
         description = response.text
         try:
             data = response.json()
-            if 'errorDetails' in data and len(data['errorDetails']) > 0:
-                error_details = data['errorDetails'][0]
-                error_code = error_details.get('code')
-                description = error_details.get('description')
+            if 'errorDetails' in data:
+                error_details = data['errorDetails']
+                if type(error_details) == list and len(error_details) > 0:
+                    error_details = error_details[0]
+                    error_code = error_details.get('code')
+                    description = error_details.get('description')
+                elif type(error_details) == dict:
+                    error_code = error_details.get('code')
+                    description = error_details.get('message')
+
         except ValueError:
             pass
 

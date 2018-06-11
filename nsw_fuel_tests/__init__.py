@@ -1,4 +1,6 @@
 import datetime
+import json
+import os
 import unittest
 
 from requests_mock import Mocker
@@ -12,8 +14,43 @@ class FuelCheckClientTest(unittest.TestCase):
         FuelCheckClient()
 
     @Mocker()
+    def test_get_fuel_prices(self, m: Mocker) -> None:
+        fixture_path = os.path.join(os.path.dirname(__file__), 'fixtures/all_prices.json')
+        with open(fixture_path) as fixture:
+            m.get(
+                '{}/prices'.format(API_URL_BASE),
+                json=json.load(fixture)
+            )
+            client = FuelCheckClient()
+            response = client.get_fuel_prices()
+
+            self.assertEqual(len(response.stations), 2)
+            self.assertEqual(len(response.prices), 5)
+            self.assertEqual(response.stations[0].name, 'Cool Fuel Brand Hurstville')
+            self.assertEqual(response.stations[1].name, 'Fake Fuel Brand Kogarah')
+            self.assertEqual(response.prices[0].fuel_type, 'DL')
+            self.assertEqual(response.prices[1].fuel_type, 'E10')
+            self.assertEqual(response.prices[1].station_code, '1')
+            self.assertEqual(response.prices[3].fuel_type, 'P95')
+            self.assertEqual(response.prices[3].station_code, '2')
+
+    @Mocker()
+    def test_get_fuel_prices_server_error(self, m: Mocker) -> None:
+        m.get(
+            '{}/prices'.format(API_URL_BASE),
+            status_code=500,
+            text='Internal Server Error.',
+        )
+
+        client = FuelCheckClient()
+        with self.assertRaises(FuelCheckError) as cm:
+            client.get_fuel_prices()
+
+        self.assertEqual(str(cm.exception), 'Internal Server Error.')
+
+    @Mocker()
     def test_get_fuel_prices_for_station(self, m: Mocker) -> None:
-        m.get('{}/station/100'.format(API_URL_BASE), json={
+        m.get('{}/prices/station/100'.format(API_URL_BASE), json={
             'prices': [
                 {
                     'fueltype': 'E10',
@@ -43,7 +80,7 @@ class FuelCheckClientTest(unittest.TestCase):
 
     @Mocker()
     def test_get_fuel_prices_within_radius(self, m: Mocker) -> None:
-        m.post('{}/nearby'.format(API_URL_BASE), json={
+        m.post('{}/prices/nearby'.format(API_URL_BASE), json={
             'stations': [
                 {
                     'stationid': 'SAAAAAA',
@@ -114,7 +151,7 @@ class FuelCheckClientTest(unittest.TestCase):
 
     @Mocker()
     def test_get_fuel_price_trends(self, m: Mocker) -> None:
-        m.post('{}/trends/'.format(API_URL_BASE), json={
+        m.post('{}/prices/trends/'.format(API_URL_BASE), json={
             'Variances': [
                 {'Code': 'E10', 'Period': 'Day', 'Price': 150.0},
                 {'Code': 'E10', 'Period': 'Week', 'Price': 151.0},
@@ -159,7 +196,7 @@ class FuelCheckClientTest(unittest.TestCase):
     @Mocker()
     def test_get_fuel_prices_for_station_client_error(self, m: Mocker) -> None:
         m.get(
-            '{}/station/21199'.format(API_URL_BASE),
+            '{}/prices/station/21199'.format(API_URL_BASE),
             status_code=400,
             json={
                 "errorDetails": [
@@ -179,7 +216,7 @@ class FuelCheckClientTest(unittest.TestCase):
     @Mocker()
     def test_get_fuel_prices_for_station_server_error(self, m: Mocker) -> None:
         m.get(
-            '{}/station/21199'.format(API_URL_BASE),
+            '{}/prices/station/21199'.format(API_URL_BASE),
             status_code=500,
             text='Internal Server Error.',
         )
@@ -192,7 +229,7 @@ class FuelCheckClientTest(unittest.TestCase):
     @Mocker()
     def test_get_fuel_prices_within_radius_server_error(self, m: Mocker) -> None:
         m.post(
-            '{}/nearby'.format(API_URL_BASE),
+            '{}/prices/nearby'.format(API_URL_BASE),
             status_code=500,
             text='Internal Server Error.',
         )
@@ -210,7 +247,7 @@ class FuelCheckClientTest(unittest.TestCase):
     @Mocker()
     def test_get_fuel_price_trends_server_error(self, m: Mocker) -> None:
         m.post(
-            '{}/trends/'.format(API_URL_BASE),
+            '{}/prices/trends/'.format(API_URL_BASE),
             status_code=500,
             text='Internal Server Error.',
         )
@@ -221,5 +258,64 @@ class FuelCheckClientTest(unittest.TestCase):
                 latitude=-33.0,
                 fuel_types=['E10', 'P95']
             )
+
+        self.assertEqual(str(cm.exception), 'Internal Server Error.')
+
+    @Mocker()
+    def test_get_reference_data(self, m: Mocker) -> None:
+        fixture_path = os.path.join(os.path.dirname(__file__), 'fixtures/lovs.json')
+        with open(fixture_path) as fixture:
+            m.get(
+                '{}/lovs'.format(API_URL_BASE),
+                json=json.load(fixture)
+            )
+            client = FuelCheckClient()
+            response = client.get_reference_data()
+            self.assertEqual(len(response.brands), 2)
+            self.assertEqual(len(response.fuel_types), 2)
+            self.assertEqual(len(response.stations), 2)
+            self.assertEqual(len(response.trend_periods), 2)
+            self.assertEqual(len(response.sort_fields), 2)
+            self.assertEqual(response.brands[0], 'Cool Fuel Brand')
+            self.assertEqual(response.fuel_types[0].code, 'E10')
+            self.assertEqual(response.fuel_types[0].name, 'Ethanol 94')
+            self.assertEqual(response.stations[0].name, 'Cool Fuel Brand Hurstville')
+            self.assertEqual(response.trend_periods[0].period, 'Day')
+            self.assertEqual(response.trend_periods[0].description, 'Description for day')
+            self.assertEqual(response.sort_fields[0].code, 'Sort 1')
+            self.assertEqual(response.sort_fields[0].name, 'Sort field 1')
+
+    @Mocker()
+    def test_get_reference_data_client_error(self, m: Mocker) -> None:
+        m.get(
+            '{}/lovs'.format(API_URL_BASE),
+            status_code=400,
+            json={
+                "errorDetails": {
+                    "code": "-2146233033",
+                    "message": "String was not recognized as a valid DateTime."
+                }
+            })
+
+        client = FuelCheckClient()
+        with self.assertRaises(FuelCheckError) as cm:
+            client.get_reference_data()
+
+        self.assertEqual(
+            str(cm.exception),
+            'String was not recognized as a valid DateTime.'
+        )
+
+    @Mocker()
+    def test_get_reference_data_server_error(self, m: Mocker) -> None:
+        m.get(
+            '{}/lovs'.format(API_URL_BASE),
+            status_code=500,
+            text='Internal Server Error.',
+        )
+
+        client = FuelCheckClient()
+        with self.assertRaises(FuelCheckError) as cm:
+            client.get_reference_data()
 
         self.assertEqual(str(cm.exception), 'Internal Server Error.')
