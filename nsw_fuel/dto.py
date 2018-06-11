@@ -57,7 +57,7 @@ class Station(object):
         return Station(
             id=data.get('stationid'),
             brand=data['brand'],
-            code=data['code'],
+            code=int(data['code']),
             name=data['name'],
             address=data['address']
         )
