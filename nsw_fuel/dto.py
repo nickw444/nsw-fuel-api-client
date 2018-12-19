@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List
+from typing import Optional, List, Any, Dict
 
 from requests import Response
 
@@ -16,16 +16,18 @@ class Price(object):
         self.station_code = station_code
 
     @classmethod
-    def deserialize(cls, data: dict) -> 'Price':
+    def deserialize(cls, data: Dict[str, Any]) -> 'Price':
 
         # Stupid API has two different date representations! :O
         lastupdated = None
         try:
-            lastupdated = datetime.strptime(data['lastupdated'], '%d/%m/%Y %H:%M:%S')
+            lastupdated = datetime.strptime(
+                data['lastupdated'], '%d/%m/%Y %H:%M:%S')
         except ValueError:
             pass
         try:
-            lastupdated = datetime.strptime(data['lastupdated'], '%Y-%m-%d %H:%M:%S')
+            lastupdated = datetime.strptime(
+                data['lastupdated'], '%Y-%m-%d %H:%M:%S')
         except ValueError:
             pass
 
@@ -53,7 +55,7 @@ class Station(object):
         self.address = address
 
     @classmethod
-    def deserialize(cls, data: dict) -> 'Station':
+    def deserialize(cls, data: Dict[str, Any]) -> 'Station':
         return Station(
             id=data.get('stationid'),
             brand=data['brand'],
@@ -81,7 +83,7 @@ class Variance(object):
         self.price = price
 
     @classmethod
-    def deserialize(cls, data: dict) -> 'Variance':
+    def deserialize(cls, data: Dict[str, Any]) -> 'Variance':
         return Variance(
             fuel_type=data['Code'],
             period=Period(data['Period']),
@@ -105,7 +107,7 @@ class AveragePrice(object):
         self.captured = captured
 
     @classmethod
-    def deserialize(cls, data: dict) -> 'AveragePrice':
+    def deserialize(cls, data: Dict[str, Any]) -> 'AveragePrice':
         period = Period(data['Period'])
 
         captured_raw = data['Captured']
@@ -139,7 +141,7 @@ class FuelType(object):
         self.name = name
 
     @classmethod
-    def deserialize(cls, data: dict) -> 'FuelType':
+    def deserialize(cls, data: Dict[str, Any]) -> 'FuelType':
         return FuelType(
             code=data['code'],
             name=data['name']
@@ -152,7 +154,7 @@ class TrendPeriod(object):
         self.description = description
 
     @classmethod
-    def deserialize(cls, data: dict) -> 'TrendPeriod':
+    def deserialize(cls, data: Dict[str, Any]) -> 'TrendPeriod':
         return TrendPeriod(
             period=data['period'],
             description=data['description']
@@ -165,7 +167,7 @@ class SortField(object):
         self.name = name
 
     @classmethod
-    def deserialize(cls, data: dict) -> 'SortField':
+    def deserialize(cls, data: Dict[str, Any]) -> 'SortField':
         return SortField(
             code=data['code'],
             name=data['name']
@@ -183,13 +185,15 @@ class GetReferenceDataResponse(object):
         self.sort_fields = sort_fields
 
     @classmethod
-    def deserialize(cls, data: dict) -> 'GetReferenceDataResponse':
+    def deserialize(cls, data: Dict[str, Any]) -> 'GetReferenceDataResponse':
         stations = [Station.deserialize(x) for x in data['stations']['items']]
         brands = [x['name'] for x in data['brands']['items']]
-        fuel_types = [FuelType.deserialize(x) for x in data['fueltypes']['items']]
+        fuel_types = [FuelType.deserialize(x) for x in
+                      data['fueltypes']['items']]
         trend_periods = [TrendPeriod.deserialize(x) for x in
                          data['trendperiods']['items']]
-        sort_fields = [SortField.deserialize(x) for x in data['sortfields']['items']]
+        sort_fields = [SortField.deserialize(x) for x in
+                       data['sortfields']['items']]
 
         return GetReferenceDataResponse(
             stations=stations,
@@ -211,7 +215,7 @@ class GetFuelPricesResponse(object):
         self.prices = prices
 
     @classmethod
-    def deserialize(cls, data: dict) -> 'GetFuelPricesResponse':
+    def deserialize(cls, data: Dict[str, Any]) -> 'GetFuelPricesResponse':
         stations = [Station.deserialize(x) for x in data['stations']]
         prices = [Price.deserialize(x) for x in data['prices']]
         return GetFuelPricesResponse(

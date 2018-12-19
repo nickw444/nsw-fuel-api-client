@@ -1,10 +1,10 @@
 import datetime
-from typing import List, Optional, NamedTuple
-
 import requests
+from typing import List, Optional, NamedTuple, Dict, Any
 
-from .dto import (Price, Station, Variance, AveragePrice,
-                  FuelCheckError, GetReferenceDataResponse, GetFuelPricesResponse)
+from .dto import (
+    Price, Station, Variance, AveragePrice, FuelCheckError,
+    GetReferenceDataResponse, GetFuelPricesResponse)
 
 API_URL_BASE = 'https://api.onegov.nsw.gov.au/FuelCheckApp/v1/fuel'
 
@@ -26,7 +26,7 @@ class FuelCheckClient():
     def _format_dt(self, dt: datetime.datetime) -> str:
         return dt.strftime('%d/%m/%Y %H:%M:%S')
 
-    def _get_headers(self) -> dict:
+    def _get_headers(self) -> Dict[str, Any]:
         return {
             'requesttimestamp': self._format_dt(datetime.datetime.now())
         }
