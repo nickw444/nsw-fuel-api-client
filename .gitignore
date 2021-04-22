@@ -56,8 +56,6 @@ venv/
 
 VERSION
 *.DS_Store
-Pipfile
-Pipfile.lock
 .idea
 
 .mypy_cache
