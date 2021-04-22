@@ -30,9 +30,9 @@ class FuelCheckClientTest(unittest.TestCase):
             self.assertEqual(response.stations[1].name, 'Fake Fuel Brand Kogarah')
             self.assertEqual(response.prices[0].fuel_type, 'DL')
             self.assertEqual(response.prices[1].fuel_type, 'E10')
-            self.assertEqual(response.prices[1].station_code, '1')
+            self.assertEqual(response.prices[1].station_code, 1)
             self.assertEqual(response.prices[3].fuel_type, 'P95')
-            self.assertEqual(response.prices[3].station_code, '2')
+            self.assertEqual(response.prices[3].station_code, 2)
 
     @Mocker()
     def test_get_fuel_prices_server_error(self, m: Mocker) -> None:
