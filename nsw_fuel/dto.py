@@ -31,7 +31,10 @@ class Price(object):
         except ValueError:
             pass
 
-        station_code = data.get('stationcode')  # type: Optional[int]
+        station_code = None # type: Optional[int]
+        if 'stationcode' in data:
+            station_code = int(data['stationcode'])
+
         return Price(
             fuel_type=data['fueltype'],
             price=data['price'],
