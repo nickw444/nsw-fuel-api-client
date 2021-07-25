@@ -247,7 +247,7 @@ class FuelCheckError(Exception):
                     description = error_details.get('description')
                 elif type(error_details) == dict:
                     error_code = error_details.get('code')
-                    description = error_details.get('message')
+                    description = error_details.get('message') # type: ignore
 
         except ValueError:
             pass
