@@ -1,31 +1,14 @@
 import os
 from setuptools import setup
 
-
-def get_version():
-    version_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        'VERSION')
-    v = open(version_path).read()
-    if type(v) == str:
-        return v.strip()
-    return v.decode('UTF-8').strip()
-
-
 readme_path = os.path.join(os.path.dirname(
     os.path.abspath(__file__)),
     'README.md',
 )
 long_description = open(readme_path).read()
 
-try:
-    version = get_version()
-except Exception:
-    version = '0.0.0-dev'
-
 setup(
     name='nsw-fuel-api-client',
-    version=version,
     packages=['nsw_fuel'],
     author="Nick Whyte",
     author_email='nick@nickwhyte.com',

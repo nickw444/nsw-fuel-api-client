@@ -8,3 +8,4 @@ from .dto import (
 __all__ = ["FuelCheckClient", "AveragePrice", "Variance", "Station", "Period",
            "Price", "FuelCheckError", "GetFuelPricesResponse", "FuelType",
            "GetReferenceDataResponse", "SortField", "TrendPeriod"]
+__version__ = "0.0.0-dev"

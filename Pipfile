@@ -6,9 +6,9 @@ name = "pypi"
 [packages]
 
 [dev-packages]
-coveralls = "*"
 flake8 = "*"
 mypy = "*"
+codecov = "*"
 
 [requires]
 python_version = "3.9"
