@@ -46,7 +46,7 @@ jobs:
         displayName: 'Check Types'
     displayName: "Check"
   - job: build
-    displayName: "Build"
+    displayName: "Build and Test"
     strategy:
       matrix:
         Python38:
