@@ -21,6 +21,7 @@ setup(
     classifiers=[
         'Intended Audience :: Developers',
         'Programming Language :: Python',
+        'License :: OSI Approved :: MIT License',
     ],
     test_suite="nsw_fuel_tests",
     tests_require=['requests-mock']
